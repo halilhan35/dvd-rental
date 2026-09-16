@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Film Yönetimi</title>
+</h:head>
+
+<h:body>
+
+    <div class="card" style="padding: 20px;">
+        <h2>Film Yönetimi</h2>
+
+        <!-- ANA FORM -->
+        <h:form id="mainForm">
+
+            <p:commandButton value="Yeni Film"
+                             icon="pi pi-plus"
+                             action="#{filmBean.prepareNew}"
+                             update=":dialogForm"
+                             oncomplete="PF('filmDialogWidget').show()"
+                             styleClass="ui-button-success"
+                             style="margin-bottom: 15px"/>
+
+            <p:dataTable id="filmTable"
+                         value="#{filmBean.filmList}"
+                         var="film"
+                         paginator="true"
+                         rows="10"
+                         responsiveLayout="scroll"
+                         emptyMessage="Film bulunamadı">
+
+                <p:column headerText="ID"
+                          style="width: 60px; text-align: center;">
+                    <h:outputText value="#{film.filmId}"/>
+                </p:column>
+
+                <p:column headerText="Film Adı">
+                    <h:outputText value="#{film.title}"/>
+                </p:column>
+
+                <p:column headerText="Açıklama">
+                    <h:outputText value="#{film.description}"/>
+                </p:column>
+
+                <p:column headerText="Yayın Yılı"
+                          style="width: 100px; text-align: center;">
+                    <h:outputText value="#{film.releaseYear}"/>
+                </p:column>
+
+                <p:column headerText="Kira Ücreti"
+                          style="width: 110px; text-align: right;">
+                    <h:outputText value="#{film.rentalRate}"/>
+                </p:column>
+
+                <p:column headerText="Süre"
+                          style="width: 110px; text-align: center;">
+                    <h:outputText value="#{film.length} dk"/>
+                </p:column>
+
+                <p:column headerText="İşlemler"
+                          style="width: 180px; text-align: center;">
+
+                    <!-- DÜZENLE -->
+                    <p:commandButton icon="pi pi-pencil"
+                                     value="Düzenle"
+                                     action="#{filmBean.prepareEdit(film)}"
+                                     update=":dialogForm"
+                                     oncomplete="PF('filmDialogWidget').show()"
+                                     styleClass="ui-button-warning"
+                                     style="margin-right: 5px"/>
+
+                    <!-- SİL -->
+                    <p:commandButton icon="pi pi-trash"
+                                     value="Sil"
+                                     action="#{filmBean.delete}"
+                                     update="filmTable"
+                                     styleClass="ui-button-danger">
+
+                        <f:setPropertyActionListener
+                                value="#{film}"
+                                target="#{filmBean.selectedFilm}"/>
+
+                    </p:commandButton>
+
+                </p:column>
+
+            </p:dataTable>
+
+        </h:form>
+
+
+        <!-- DIALOG -->
+        <p:dialog id="filmDialog"
+                  widgetVar="filmDialogWidget"
+                  header="Film Bilgileri"
+                  modal="true"
+                  responsive="true"
+                  width="550">
+
+            <!-- DIALOG FORM -->
+            <h:form id="dialogForm">
+
+                <h:inputHidden value="#{filmBean.selectedFilm.filmId}"/>
+
+                <p:messages id="dialogMessages"
+                            showDetail="true"
+                            closable="true"/>
+
+                <p:panelGrid columns="2"
+                             layout="grid"
+                             columnClasses="ui-g-12 ui-md-4, ui-g-12 ui-md-8"
+                             styleClass="ui-fluid ui-panelgrid-blank">
+
+                    <p:outputLabel for="title"
+                                   value="Film Adı:"/>
+
+                    <p:inputText id="title"
+                                 value="#{filmBean.selectedFilm.title}"
+                                 required="true"
+                                 requiredMessage="Film adı zorunludur"/>
+
+
+                    <p:outputLabel for="description"
+                                   value="Açıklama:"/>
+
+                    <p:inputTextarea id="description"
+                                     value="#{filmBean.selectedFilm.description}"
+                                     rows="3"/>
+
+
+                    <p:outputLabel for="releaseYear"
+                                   value="Yayın Yılı:"/>
+
+                    <p:inputText id="releaseYear"
+                                 value="#{filmBean.selectedFilm.releaseYear}"/>
+
+
+                    <p:outputLabel for="languageId"
+                                   value="Dil ID:"/>
+
+                    <p:inputText id="languageId"
+                                 value="#{filmBean.selectedFilm.languageId}"/>
+
+
+                    <p:outputLabel for="rentalRate"
+                                   value="Kira Ücreti:"/>
+
+                    <p:inputText id="rentalRate"
+                                 value="#{filmBean.selectedFilm.rentalRate}"/>
+
+
+                    <p:outputLabel for="length"
+                                   value="Süre (dk):"/>
+
+                    <p:inputText id="length"
+                                 value="#{filmBean.selectedFilm.length}"/>
+
+                </p:panelGrid>
+
+
+                <!-- BUTONLAR DA FORMUN İÇİNDE -->
+                <div style="text-align: right; margin-top: 15px;">
+
+                    <!-- KAYDET -->
+                    <p:commandButton value="Kaydet"
+                                     icon="pi pi-check"
+                                     process="@form"
+                                     action="#{filmBean.save}"
+                                     update=":mainForm:filmTable :dialogMessages"
+                                     oncomplete="if (!args.validationFailed) PF('filmDialogWidget').hide()"
+                                     styleClass="ui-button-success"
+                                     style="margin-right: 5px"/>
+
+                    <!-- İPTAL -->
+                    <p:commandButton value="İptal"
+                                     icon="pi pi-times"
+                                     type="button"
+                                     onclick="PF('filmDialogWidget').hide()"
+                                     styleClass="ui-button-secondary"/>
+
+                </div>
+
+            </h:form>
+
+        </p:dialog>
+
+    </div>
+
+</h:body>
+</html>
