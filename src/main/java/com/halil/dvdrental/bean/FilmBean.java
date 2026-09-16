@@ -1,7 +1,9 @@
 package com.halil.dvdrental.bean;
 
 import com.halil.dvdrental.entity.Film;
+import com.halil.dvdrental.entity.Language;
 import com.halil.dvdrental.service.FilmService;
+import com.halil.dvdrental.service.LanguageService;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,53 +16,79 @@ import java.util.List;
 public class FilmBean implements Serializable {
 
     private final FilmService filmService;
+    private final LanguageService languageService;
 
     private List<Film> filmList;
+    private List<Language> languageList;
 
-    private Film selectedFilm;
+    private Film selectedFilm = new Film();
+    private Integer selectedLanguageId;
 
     private boolean editMode;
 
     @Autowired
-    public FilmBean(FilmService filmService) {
+    public FilmBean(FilmService filmService,
+                    LanguageService languageService) {
+
         this.filmService = filmService;
+        this.languageService = languageService;
     }
 
     public void prepareNew() {
         selectedFilm = new Film();
+        selectedLanguageId = null;
         editMode = false;
     }
 
     public void prepareEdit(Film film) {
         selectedFilm = film;
         editMode = true;
+
+        if (film.getLanguage() != null) {
+            selectedLanguageId = film.getLanguage().getLanguageId();
+        } else {
+            selectedLanguageId = null;
+        }
     }
 
     public void save() {
+
+        if (selectedLanguageId != null) {
+            languageService.getLanguageById(selectedLanguageId)
+                    .ifPresent(selectedFilm::setLanguage);
+        }
 
         filmService.saveFilm(selectedFilm);
 
         filmList = filmService.getAllFilms();
 
         selectedFilm = new Film();
+        selectedLanguageId = null;
     }
 
     public void delete() {
-
         filmService.deleteFilm(selectedFilm.getFilmId());
 
         filmList = filmService.getAllFilms();
 
         selectedFilm = new Film();
+        selectedLanguageId = null;
     }
 
     public List<Film> getFilmList() {
-
         if (filmList == null) {
             filmList = filmService.getAllFilms();
         }
 
         return filmList;
+    }
+
+    public List<Language> getLanguageList() {
+        if (languageList == null) {
+            languageList = languageService.getAllLanguages();
+        }
+
+        return languageList;
     }
 
     public Film getSelectedFilm() {
@@ -69,6 +97,14 @@ public class FilmBean implements Serializable {
 
     public void setSelectedFilm(Film selectedFilm) {
         this.selectedFilm = selectedFilm;
+    }
+
+    public Integer getSelectedLanguageId() {
+        return selectedLanguageId;
+    }
+
+    public void setSelectedLanguageId(Integer selectedLanguageId) {
+        this.selectedLanguageId = selectedLanguageId;
     }
 
     public boolean isEditMode() {

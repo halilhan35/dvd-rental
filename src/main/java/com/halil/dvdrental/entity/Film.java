@@ -22,8 +22,9 @@ public class Film {
     @Column(name = "release_year")
     private Integer releaseYear;
 
-    @Column(name = "language_id")
-    private Integer languageId;
+    @ManyToOne
+    @JoinColumn(name = "language_id")
+    private Language language;
 
     @Column(name = "rental_rate")
     private BigDecimal rentalRate;
@@ -66,12 +67,12 @@ public class Film {
         this.releaseYear = releaseYear;
     }
 
-    public Integer getLanguageId() {
-        return languageId;
+    public Language getLanguage() {
+        return language;
     }
 
-    public void setLanguageId(Integer languageId) {
-        this.languageId = languageId;
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
     public BigDecimal getRentalRate() {

@@ -45,6 +45,10 @@
                     <h:outputText value="#{film.description}"/>
                 </p:column>
 
+                <p:column headerText="Dil">
+                    <h:outputText value="#{film.language.name}"/>
+                </p:column>
+
                 <p:column headerText="Yayın Yılı"
                           style="width: 100px; text-align: center;">
                     <h:outputText value="#{film.releaseYear}"/>
@@ -138,11 +142,23 @@
                                  value="#{filmBean.selectedFilm.releaseYear}"/>
 
 
-                    <p:outputLabel for="languageId"
-                                   value="Dil ID:"/>
+                    <p:outputLabel for="language" value="Dil:"/>
 
-                    <p:inputText id="languageId"
-                                 value="#{filmBean.selectedFilm.languageId}"/>
+                    <p:selectOneMenu id="language"
+                                     value="#{filmBean.selectedLanguageId}"
+                                     style="width: 100%;">
+
+                        <f:selectItem itemLabel="Dil seçiniz"
+                                      itemValue="#{null}"
+                                      noSelectionOption="true"/>
+
+                        <f:selectItems
+                                value="#{filmBean.languageList}"
+                                var="language"
+                                itemLabel="#{language.name}"
+                                itemValue="#{language.languageId}"/>
+
+                    </p:selectOneMenu>
 
 
                     <p:outputLabel for="rentalRate"
