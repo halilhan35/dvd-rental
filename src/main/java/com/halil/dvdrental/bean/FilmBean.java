@@ -7,6 +7,7 @@ import com.halil.dvdrental.service.LanguageService;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.halil.dvdrental.model.FilmLazyDataModel;
 
 import java.io.Serializable;
 import java.util.List;
@@ -20,6 +21,7 @@ public class FilmBean implements Serializable {
 
     private List<Film> filmList;
     private List<Language> languageList;
+    private FilmLazyDataModel lazyFilmModel;
 
     private Film selectedFilm = new Film();
     private Integer selectedLanguageId;
@@ -92,19 +94,37 @@ public class FilmBean implements Serializable {
         return languageList;
     }
 
-    public void search() {
+    public FilmLazyDataModel getLazyFilmModel() {
 
-        if (searchKeyword == null || searchKeyword.trim().isEmpty()) {
-            filmList = filmService.getAllFilms();
-            return;
+        if (lazyFilmModel == null) {
+            lazyFilmModel = new FilmLazyDataModel(filmService);
         }
 
-        filmList = filmService.searchFilms(searchKeyword);
+        return lazyFilmModel;
+    }
+
+    public void search() {
+
+        if (lazyFilmModel == null) {
+            lazyFilmModel = new FilmLazyDataModel(filmService);
+        }
+
+        lazyFilmModel.setKeyword(searchKeyword);
+
+        lazyFilmModel.setRowIndex(0);
     }
 
     public void clearSearch() {
+
         searchKeyword = null;
-        filmList = filmService.getAllFilms();
+
+        if (lazyFilmModel == null) {
+            lazyFilmModel = new FilmLazyDataModel(filmService);
+        }
+
+        lazyFilmModel.setKeyword(null);
+
+        lazyFilmModel.setRowIndex(0);
     }
 
     public Film getSelectedFilm() {

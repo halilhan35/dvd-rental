@@ -46,8 +46,9 @@
             </div>
 
             <p:dataTable id="filmTable"
-                         value="#{filmBean.filmList}"
+                         value="#{filmBean.lazyFilmModel}"
                          var="film"
+                         lazy="true"
                          paginator="true"
                          rows="10"
                          responsiveLayout="scroll"
@@ -58,7 +59,8 @@
                     <h:outputText value="#{film.filmId}"/>
                 </p:column>
 
-                <p:column headerText="Film Adı">
+                <p:column headerText="Film Adı"
+                          sortBy="#{film.title}">
                     <h:outputText value="#{film.title}"/>
                 </p:column>
 
@@ -71,18 +73,18 @@
                 </p:column>
 
                 <p:column headerText="Yayın Yılı"
-                          style="width: 100px; text-align: center;">
+                          sortBy="#{film.releaseYear}">
                     <h:outputText value="#{film.releaseYear}"/>
                 </p:column>
 
                 <p:column headerText="Kira Ücreti"
-                          style="width: 110px; text-align: right;">
+                          sortBy="#{film.rentalRate}">
                     <h:outputText value="#{film.rentalRate}"/>
                 </p:column>
 
                 <p:column headerText="Süre"
-                          style="width: 110px; text-align: center;">
-                    <h:outputText value="#{film.length} dk"/>
+                          sortBy="#{film.length}">
+                    <h:outputText value="#{film.length}"/>
                 </p:column>
 
                 <p:column headerText="İşlemler"
