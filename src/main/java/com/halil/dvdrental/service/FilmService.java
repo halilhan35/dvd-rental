@@ -1,7 +1,10 @@
 package com.halil.dvdrental.service;
 
 import com.halil.dvdrental.entity.Film;
+import com.halil.dvdrental.entity.QFilm;
 import com.halil.dvdrental.repository.FilmRepository;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +35,17 @@ public class FilmService {
 
     public void deleteFilm(Integer id) {
         filmRepository.deleteById(id);
+    }
+
+    public List<Film> searchFilms(String keyword) {
+
+        QFilm film = QFilm.film;
+
+        BooleanExpression predicate =
+                film.title.containsIgnoreCase(keyword);
+
+        return StreamSupport
+                .stream(filmRepository.findAll(predicate).spliterator(), false)
+                .toList();
     }
 }

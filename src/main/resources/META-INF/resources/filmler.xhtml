@@ -24,6 +24,27 @@
                              styleClass="ui-button-success"
                              style="margin-bottom: 15px"/>
 
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+
+                <p:inputText id="searchInput"
+                             value="#{filmBean.searchKeyword}"
+                             placeholder="Film adı ara..."
+                             style="width: 300px"/>
+
+                <p:commandButton value="Ara"
+                                 icon="pi pi-search"
+                                 action="#{filmBean.search}"
+                                 update="filmTable"
+                                 styleClass="ui-button-primary"/>
+
+                <p:commandButton value="Temizle"
+                                 icon="pi pi-times"
+                                 action="#{filmBean.clearSearch}"
+                                 update="searchInput filmTable"
+                                 styleClass="ui-button-secondary"/>
+
+            </div>
+
             <p:dataTable id="filmTable"
                          value="#{filmBean.filmList}"
                          var="film"

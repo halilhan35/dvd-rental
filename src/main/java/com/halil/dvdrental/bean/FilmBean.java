@@ -23,6 +23,7 @@ public class FilmBean implements Serializable {
 
     private Film selectedFilm = new Film();
     private Integer selectedLanguageId;
+    private String searchKeyword;
 
     private boolean editMode;
 
@@ -91,6 +92,21 @@ public class FilmBean implements Serializable {
         return languageList;
     }
 
+    public void search() {
+
+        if (searchKeyword == null || searchKeyword.trim().isEmpty()) {
+            filmList = filmService.getAllFilms();
+            return;
+        }
+
+        filmList = filmService.searchFilms(searchKeyword);
+    }
+
+    public void clearSearch() {
+        searchKeyword = null;
+        filmList = filmService.getAllFilms();
+    }
+
     public Film getSelectedFilm() {
         return selectedFilm;
     }
@@ -113,5 +129,13 @@ public class FilmBean implements Serializable {
 
     public void setEditMode(boolean editMode) {
         this.editMode = editMode;
+    }
+
+    public String getSearchKeyword() {
+        return searchKeyword;
+    }
+
+    public void setSearchKeyword(String searchKeyword) {
+        this.searchKeyword = searchKeyword;
     }
 }
