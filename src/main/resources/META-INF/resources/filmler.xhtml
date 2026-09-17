@@ -16,6 +16,10 @@
         <!-- ANA FORM -->
         <h:form id="mainForm">
 
+            <p:messages id="mainMessages"
+                        showDetail="true"
+                        closable="true"/>
+
             <p:commandButton value="Yeni Film"
                              icon="pi pi-plus"
                              action="#{filmBean.prepareNew}"
@@ -72,6 +76,7 @@
                     <h:outputText value="#{film.language.name}"/>
                 </p:column>
 
+
                 <p:column headerText="Yayın Yılı"
                           sortBy="#{film.releaseYear}">
                     <h:outputText value="#{film.releaseYear}"/>
@@ -94,6 +99,7 @@
                     <p:commandButton icon="pi pi-pencil"
                                      value="Düzenle"
                                      action="#{filmBean.prepareEdit(film)}"
+                                     process="@this"
                                      update=":dialogForm"
                                      oncomplete="PF('filmDialogWidget').show()"
                                      styleClass="ui-button-warning"
@@ -103,7 +109,7 @@
                     <p:commandButton icon="pi pi-trash"
                                      value="Sil"
                                      action="#{filmBean.delete}"
-                                     update="filmTable"
+                                     update="filmTable mainMessages"
                                      styleClass="ui-button-danger">
 
                         <f:setPropertyActionListener
@@ -196,6 +202,43 @@
 
                     <p:inputText id="length"
                                  value="#{filmBean.selectedFilm.length}"/>
+
+                    <p:outputLabel for="actors"
+                                   value="Oyuncular:"/>
+
+                    <p:selectCheckboxMenu id="actors"
+                                          value="#{filmBean.selectedActorIds}"
+                                          multiple="true"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          style="width: 100%;">
+
+                        <f:selectItems
+                                value="#{filmBean.actorList}"
+                                var="actor"
+                                itemLabel="#{actor.firstName} #{actor.lastName}"
+                                itemValue="#{actor.actorId}"/>
+
+                    </p:selectCheckboxMenu>
+
+
+                    <p:outputLabel for="categories"
+                                   value="Kategoriler:"/>
+
+                    <p:selectCheckboxMenu id="categories"
+                                          value="#{filmBean.selectedCategoryIds}"
+                                          multiple="true"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          style="width: 100%;">
+
+                        <f:selectItems
+                                value="#{filmBean.categoryList}"
+                                var="category"
+                                itemLabel="#{category.name}"
+                                itemValue="#{category.categoryId}"/>
+
+                    </p:selectCheckboxMenu>
 
                 </p:panelGrid>
 
