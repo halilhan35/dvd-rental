@@ -1,48 +1,39 @@
 package com.halil.dvdrental.service;
 
+import com.halil.dvdrental.entity.Actor;
 import com.halil.dvdrental.entity.Film;
 import com.halil.dvdrental.entity.QFilm;
-import com.halil.dvdrental.repository.FilmRepository;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
-import com.halil.dvdrental.entity.Actor;
 import com.halil.dvdrental.entity.Category;
 import com.halil.dvdrental.repository.ActorRepository;
 import com.halil.dvdrental.repository.CategoryRepository;
+import com.halil.dvdrental.repository.FilmRepository;
 
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
+import com.halil.dvdrental.dto.FilmDTO;
+import com.halil.dvdrental.mapper.FilmMapper;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmRepository filmRepository;
     private final JPAQueryFactory queryFactory;
     private final ActorRepository actorRepository;
     private final CategoryRepository categoryRepository;
+    private final LanguageService languageService;
 
-    @Autowired
-    public FilmService(FilmRepository filmRepository,
-                       JPAQueryFactory queryFactory,
-                       ActorRepository actorRepository,
-                       CategoryRepository categoryRepository) {
 
-        this.filmRepository = filmRepository;
-        this.queryFactory = queryFactory;
-        this.actorRepository = actorRepository;
-        this.categoryRepository = categoryRepository;
-    }
     public List<Film> getFilms(int first,
                                int pageSize,
                                String sortField,
@@ -93,11 +84,37 @@ public class FilmService {
 
         return queryFactory
                 .selectFrom(film)
+                .leftJoin(film.language).fetchJoin()
                 .where(predicate)
                 .orderBy(orderSpecifier)
                 .offset(first)
                 .limit(pageSize)
                 .fetch();
+    }
+
+    public List<FilmDTO> getFilmDTOs(int first,
+                                     int pageSize,
+                                     String sortField,
+                                     boolean ascending,
+                                     String keyword) {
+
+        List<Film> films = getFilms(
+                first,
+                pageSize,
+                sortField,
+                ascending,
+                keyword
+        );
+
+        return films.stream()
+                .map(FilmMapper::toListDTO)
+                .toList();
+    }
+
+    public FilmDTO getFilmDTOById(Integer id) {
+        return filmRepository.findById(id)
+                .map(FilmMapper::toDTO)
+                .orElse(null);
     }
 
     public long countFilms() {
@@ -131,54 +148,6 @@ public class FilmService {
                 .fetchOne();
     }
 
-    /*
-     * Düzenleme ekranı için kullanılır.
-     *
-     * Burada Hibernate collection'larını normal Set'e
-     * çeviriyoruz.
-     *
-     * Çünkü bu nesne JSF tarafına gönderilecek ve Hibernate
-     * session'ı kapandıktan sonra JSF actors/categories
-     * alanlarını okuyacak.
-     */
-    @Transactional(readOnly = true)
-    public Optional<Film> getFilmByIdWithDetails(Integer id) {
-
-        QFilm film = QFilm.film;
-
-        Film result = queryFactory
-                .selectFrom(film)
-                .leftJoin(film.language).fetchJoin()
-                .leftJoin(film.actors).fetchJoin()
-                .leftJoin(film.categories).fetchJoin()
-                .where(film.filmId.eq(id))
-                .distinct()
-                .fetchOne();
-
-        if (result == null) {
-            return Optional.empty();
-        }
-
-        /*
-         * Collection'ların transaction açıkken initialize
-         * edilmesini garanti ediyoruz.
-         */
-        result.getActors().size();
-        result.getCategories().size();
-
-        /*
-         * JSF tarafına Hibernate PersistentSet göndermiyoruz.
-         */
-        result.setActors(
-                new HashSet<>(result.getActors())
-        );
-
-        result.setCategories(
-                new HashSet<>(result.getCategories())
-        );
-
-        return Optional.of(result);
-    }
 
     /*
      * Kaydetme sırasında kullanılır.
@@ -203,113 +172,90 @@ public class FilmService {
     }
 
     public List<Film> getAllFilms() {
-        return filmRepository.findAll();
+        QFilm film = QFilm.film;
+        return queryFactory
+                .selectFrom(film)
+                .leftJoin(film.language).fetchJoin()
+                .fetch();
     }
 
-    public Optional<Film> getFilmById(Integer id) {
-        return filmRepository.findById(id);
-    }
 
     /*
      * Film kaydetme / güncelleme
      */
 
-    @Transactional
-    public Film saveFilm(Film film,
-                         Set<Integer> actorIds,
-                         Set<Integer> categoryIds) {
 
-        /*
-         * YENİ FİLM
-         */
-        if (film.getFilmId() == null) {
+    public List<FilmDTO> getAllFilmDTOs() {
+        return getAllFilms()
+                .stream()
+                .map(FilmMapper::toDTO)
+                .toList();
+    }
 
-            // Önce filmi kaydet
-            Film savedFilm = filmRepository.save(film);
+    public FilmDTO saveFilmDTO(FilmDTO dto) {
 
-            // Seçilen Actor'ları veritabanından managed olarak getir
+        Film film;
+
+        // YENİ FİLM
+        if (dto.getFilmId() == null) {
+
+            film = FilmMapper.toEntity(dto);
+
+            if (dto.getLanguageId() != null) {
+                languageService
+                        .getLanguageById(dto.getLanguageId())
+                        .ifPresent(film::setLanguage);
+            }
+
             List<Actor> actors =
-                    actorRepository.findAllById(actorIds);
+                    actorRepository.findAllById(dto.getActorIds());
 
-            // Seçilen Category'leri veritabanından managed olarak getir
             List<Category> categories =
-                    categoryRepository.findAllById(categoryIds);
+                    categoryRepository.findAllById(dto.getCategoryIds());
 
-            // İlişkileri ekle
-            savedFilm.getActors().clear();
-            savedFilm.getActors().addAll(actors);
+            film.setActors(new LinkedHashSet<>(actors));
+            film.setCategories(new LinkedHashSet<>(categories));
 
-            savedFilm.getCategories().clear();
-            savedFilm.getCategories().addAll(categories);
+            film = filmRepository.save(film);
 
-            return savedFilm;
+        }
+        // MEVCUT FİLMİ GÜNCELLE
+        else {
+
+            film = getFilmForEdit(dto.getFilmId());
+
+            if (film == null) {
+                return null;
+            }
+
+            film.setTitle(dto.getTitle());
+            film.setDescription(dto.getDescription());
+            film.setReleaseYear(dto.getReleaseYear());
+            film.setRentalRate(dto.getRentalRate());
+            film.setLength(dto.getLength());
+
+            if (dto.getLanguageId() != null) {
+                languageService
+                        .getLanguageById(dto.getLanguageId())
+                        .ifPresent(film::setLanguage);
+            } else {
+                film.setLanguage(null);
+            }
+
+            List<Actor> actors =
+                    actorRepository.findAllById(dto.getActorIds());
+
+            film.getActors().clear();
+            film.getActors().addAll(actors);
+
+            List<Category> categories =
+                    categoryRepository.findAllById(dto.getCategoryIds());
+
+            film.getCategories().clear();
+            film.getCategories().addAll(categories);
         }
 
-        /*
-         * MEVCUT FİLMİ GETİR
-         */
-        Film existingFilm =
-                getFilmForEdit(film.getFilmId());
-
-        if (existingFilm == null) {
-            return null;
-        }
-
-        /*
-         * Normal alanlar
-         */
-        existingFilm.setTitle(
-                film.getTitle()
-        );
-
-        existingFilm.setDescription(
-                film.getDescription()
-        );
-
-        existingFilm.setReleaseYear(
-                film.getReleaseYear()
-        );
-
-        existingFilm.setLanguage(
-                film.getLanguage()
-        );
-
-        existingFilm.setRentalRate(
-                film.getRentalRate()
-        );
-
-        existingFilm.setLength(
-                film.getLength()
-        );
-
-        /*
-         * ACTOR
-         */
-
-        List<Actor> actors =
-                actorRepository.findAllById(actorIds);
-
-        existingFilm.getActors().clear();
-
-        existingFilm.getActors().addAll(actors);
-
-        /*
-         * CATEGORY
-         */
-
-        List<Category> categories =
-                categoryRepository.findAllById(categoryIds);
-
-        existingFilm.getCategories().clear();
-
-        existingFilm.getCategories().addAll(categories);
-
-        /*
-         * existingFilm Hibernate tarafından yönetiliyor.
-         * Transaction sonunda değişiklikler otomatik olarak
-         * veritabanına yazılır.
-         */
-        return existingFilm;
+        return FilmMapper.toDTO(film);
     }
 
     public boolean deleteFilm(Integer id) {

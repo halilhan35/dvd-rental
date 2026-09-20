@@ -73,7 +73,7 @@
                 </p:column>
 
                 <p:column headerText="Dil">
-                    <h:outputText value="#{film.language.name}"/>
+                    <h:outputText value="#{film.languageName}"/>
                 </p:column>
 
 
@@ -114,7 +114,7 @@
 
                         <f:setPropertyActionListener
                                 value="#{film}"
-                                target="#{filmBean.selectedFilm}"/>
+                                target="#{filmBean.selectedFilmDTO}"/>
 
                     </p:commandButton>
 
@@ -136,7 +136,7 @@
             <!-- DIALOG FORM -->
             <h:form id="dialogForm">
 
-                <h:inputHidden value="#{filmBean.selectedFilm.filmId}"/>
+                <h:inputHidden value="#{filmBean.selectedFilmDTO.filmId}"/>
 
                 <p:messages id="dialogMessages"
                             showDetail="true"
@@ -151,7 +151,7 @@
                                    value="Film Adı:"/>
 
                     <p:inputText id="title"
-                                 value="#{filmBean.selectedFilm.title}"
+                                 value="#{filmBean.selectedFilmDTO.title}"
                                  required="true"
                                  requiredMessage="Film adı zorunludur"/>
 
@@ -160,7 +160,7 @@
                                    value="Açıklama:"/>
 
                     <p:inputTextarea id="description"
-                                     value="#{filmBean.selectedFilm.description}"
+                                     value="#{filmBean.selectedFilmDTO.description}"
                                      rows="3"/>
 
 
@@ -168,13 +168,13 @@
                                    value="Yayın Yılı:"/>
 
                     <p:inputText id="releaseYear"
-                                 value="#{filmBean.selectedFilm.releaseYear}"/>
+                                 value="#{filmBean.selectedFilmDTO.releaseYear}"/>
 
 
                     <p:outputLabel for="language" value="Dil:"/>
 
                     <p:selectOneMenu id="language"
-                                     value="#{filmBean.selectedLanguageId}"
+                                     value="#{filmBean.selectedFilmDTO.languageId}"
                                      style="width: 100%;">
 
                         <f:selectItem itemLabel="Dil seçiniz"
@@ -194,20 +194,20 @@
                                    value="Kira Ücreti:"/>
 
                     <p:inputText id="rentalRate"
-                                 value="#{filmBean.selectedFilm.rentalRate}"/>
+                                 value="#{filmBean.selectedFilmDTO.rentalRate}"/>
 
 
                     <p:outputLabel for="length"
                                    value="Süre (dk):"/>
 
                     <p:inputText id="length"
-                                 value="#{filmBean.selectedFilm.length}"/>
+                                 value="#{filmBean.selectedFilmDTO.length}"/>
 
                     <p:outputLabel for="actors"
                                    value="Oyuncular:"/>
 
                     <p:selectCheckboxMenu id="actors"
-                                          value="#{filmBean.selectedActorIds}"
+                                          value="#{filmBean.selectedFilmDTO.actorIds}"
                                           multiple="true"
                                           filter="true"
                                           filterMatchMode="contains"
@@ -226,7 +226,7 @@
                                    value="Kategoriler:"/>
 
                     <p:selectCheckboxMenu id="categories"
-                                          value="#{filmBean.selectedCategoryIds}"
+                                          value="#{filmBean.selectedFilmDTO.categoryIds}"
                                           multiple="true"
                                           filter="true"
                                           filterMatchMode="contains"
@@ -250,7 +250,7 @@
                     <p:commandButton value="Kaydet"
                                      icon="pi pi-check"
                                      process="@form"
-                                     action="#{filmBean.save}"
+                                     action="#{filmBean.saveDTO}"
                                      update=":mainForm:filmTable :dialogMessages"
                                      oncomplete="if (!args.validationFailed) PF('filmDialogWidget').hide()"
                                      styleClass="ui-button-success"

@@ -1,15 +1,19 @@
 package com.halil.dvdrental.model;
 
-import com.halil.dvdrental.entity.Film;
 import com.halil.dvdrental.service.FilmService;
+import lombok.Getter;
+import lombok.Setter;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
+import com.halil.dvdrental.dto.FilmDTO;
 
 import java.util.List;
 import java.util.Map;
 
-public class FilmLazyDataModel extends LazyDataModel<Film> {
+@Getter
+@Setter
+public class FilmLazyDataModel extends LazyDataModel<FilmDTO> {
 
     private final FilmService filmService;
     private String keyword;
@@ -18,19 +22,11 @@ public class FilmLazyDataModel extends LazyDataModel<Film> {
         this.filmService = filmService;
     }
 
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
     @Override
-    public List<Film> load(int first,
-                           int pageSize,
-                           Map<String, SortMeta> sortBy,
-                           Map<String, FilterMeta> filterBy) {
+    public List<FilmDTO> load(int first,
+                              int pageSize,
+                              Map<String, SortMeta> sortBy,
+                              Map<String, FilterMeta> filterBy) {
 
         String sortField = "filmId";
         boolean ascending = true;
@@ -49,7 +45,7 @@ public class FilmLazyDataModel extends LazyDataModel<Film> {
 
         setRowCount((int) filmService.countFilms(keyword));
 
-        return filmService.getFilms(
+        return filmService.getFilmDTOs(
                 first,
                 pageSize,
                 sortField,
