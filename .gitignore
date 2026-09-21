@@ -34,4 +34,7 @@ build/
 ### Mac OS ###
 .DS_Store
 
+### Log ###
+logs/
+
 application.properties

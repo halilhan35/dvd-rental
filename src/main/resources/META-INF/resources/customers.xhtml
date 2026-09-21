@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+    <title>Müşteriler</title>
+</h:head>
+
+<h:body>
+
+    <h:form id="mainForm">
+
+        <p:messages id="messages" showDetail="true" closable="true"/>
+
+        <p:commandButton
+                value="Yeni Müşteri"
+                icon="pi pi-plus"
+                action="#{customerBean.prepareNew}"
+                update=":dialogForm"
+                oncomplete="PF('customerDialog').show()"/>
+
+        <p:dataTable
+                id="customerTable"
+                value="#{customerBean.customerList}"
+                var="customer"
+                paginator="true"
+                rows="10"
+                emptyMessage="Müşteri bulunamadı.">
+
+            <p:column headerText="ID">
+                <h:outputText value="#{customer.customerId}"/>
+            </p:column>
+
+            <p:column headerText="Ad">
+                <h:outputText value="#{customer.firstName}"/>
+            </p:column>
+
+            <p:column headerText="Soyad">
+                <h:outputText value="#{customer.lastName}"/>
+            </p:column>
+
+            <p:column headerText="E-posta">
+                <h:outputText value="#{customer.email}"/>
+            </p:column>
+
+            <p:column headerText="Aktif">
+                <h:outputText
+                        value="#{customer.activebool ? 'Evet' : 'Hayır'}"/>
+            </p:column>
+
+            <p:column headerText="İşlemler">
+
+                <p:commandButton
+                        value="Düzenle"
+                        icon="pi pi-pencil"
+                        action="#{customerBean.prepareEdit(customer)}"
+                        update=":dialogForm"
+                        oncomplete="PF('customerDialog').show()"/>
+
+                <p:commandButton
+                        value="Sil"
+                        icon="pi pi-trash"
+                        action="#{customerBean.delete}"
+                        update=":mainForm"
+                        styleClass="ui-button-danger">
+
+                    <f:setPropertyActionListener
+                            value="#{customer}"
+                            target="#{customerBean.selectedCustomerDTO}"/>
+
+                    <p:confirm
+                            header="Müşteri Sil"
+                            message="Bu müşteriyi silmek istediğinize emin misiniz?"
+                            icon="pi pi-exclamation-triangle"/>
+                </p:commandButton>
+
+            </p:column>
+
+        </p:dataTable>
+
+        <p:confirmDialog global="true">
+
+            <p:commandButton
+                    value="Evet"
+                    type="button"
+                    styleClass="ui-confirmdialog-yes"
+                    icon="pi pi-check"/>
+
+            <p:commandButton
+                    value="Hayır"
+                    type="button"
+                    styleClass="ui-confirmdialog-no"
+                    icon="pi pi-times"/>
+
+        </p:confirmDialog>
+
+    </h:form>
+
+
+    <h:form id="dialogForm">
+
+        <p:dialog
+                id="customerDialog"
+                widgetVar="customerDialog"
+                header="Müşteri Bilgileri"
+                modal="true"
+                resizable="false">
+
+            <p:messages id="dialogMessages"
+                        showDetail="true"
+                        closable="true"/>
+
+            <p:panelGrid columns="2">
+
+                <p:outputLabel for="firstName" value="Ad"/>
+                <p:inputText
+                        id="firstName"
+                        value="#{customerBean.selectedCustomerDTO.firstName}"
+                        required="true"
+                        requiredMessage="Ad alanı zorunludur."/>
+
+                <p:outputLabel for="lastName" value="Soyad"/>
+                <p:inputText
+                        id="lastName"
+                        value="#{customerBean.selectedCustomerDTO.lastName}"
+                        required="true"
+                        requiredMessage="Soyad alanı zorunludur."/>
+
+                <p:outputLabel for="email" value="E-posta"/>
+                <p:inputText
+                        id="email"
+                        value="#{customerBean.selectedCustomerDTO.email}"/>
+
+                <p:outputLabel for="activebool" value="Aktif"/>
+                <p:selectBooleanCheckbox
+                        id="activebool"
+                        value="#{customerBean.selectedCustomerDTO.activebool}"/>
+
+            </p:panelGrid>
+
+            <p:separator/>
+
+            <p:commandButton
+                    value="Kaydet"
+                    icon="pi pi-check"
+                    action="#{customerBean.save}"
+                    update=":mainForm :dialogForm"
+                    process="@form"
+                    oncomplete="if (!args.validationFailed) PF('customerDialog').hide()"/>
+
+            <p:commandButton
+                    value="İptal"
+                    icon="pi pi-times"
+                    type="button"
+                    onclick="PF('customerDialog').hide()"/>
+
+        </p:dialog>
+
+    </h:form>
+
+</h:body>
+</html>
