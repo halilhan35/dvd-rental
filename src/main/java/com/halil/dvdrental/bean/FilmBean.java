@@ -79,13 +79,6 @@ public class FilmBean implements Serializable {
             return;
         }
 
-        log.debug("Saving film: title={}, id={}, languageId={}, actorIds={}, categoryIds={}",
-                selectedFilmDTO.getTitle(),
-                selectedFilmDTO.getFilmId(),
-                selectedFilmDTO.getLanguageId(),
-                selectedFilmDTO.getActorIds(),
-                selectedFilmDTO.getCategoryIds());
-
         FilmDTO savedDTO = filmService.saveFilmDTO(selectedFilmDTO);
 
         if (savedDTO == null) {
@@ -93,9 +86,11 @@ public class FilmBean implements Serializable {
             return;
         }
 
-        log.info("Film saved successfully: id={}, title={}", savedDTO.getFilmId(), savedDTO.getTitle());
+        log.info("Film saved successfully: id={}, title={}",
+            savedDTO.getFilmId(), savedDTO.getTitle());
 
-        filmList = filmService.getAllFilmDTOs();
+        lazyFilmModel = new FilmLazyDataModel(filmService);
+        lazyFilmModel.setKeyword(searchKeyword);
 
         selectedFilmDTO = new FilmDTO();
         editMode = false;

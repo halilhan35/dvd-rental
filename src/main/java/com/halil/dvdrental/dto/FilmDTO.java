@@ -5,10 +5,11 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.io.Serializable;
 
 @Getter
 @Setter
-public class FilmDTO {
+public class FilmDTO implements Serializable {
 
     private Integer filmId;
     private String title;

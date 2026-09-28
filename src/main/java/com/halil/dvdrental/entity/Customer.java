@@ -45,4 +45,7 @@ public class Customer {
 
     @Column(name = "active")
     private Integer active;
+
+    @Column(name = "password")
+    private String password;
 }

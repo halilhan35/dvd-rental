@@ -9,11 +9,13 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "actor")
-public class Actor {
+public class Actor implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

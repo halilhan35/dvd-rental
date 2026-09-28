@@ -5,6 +5,7 @@ import com.halil.dvdrental.entity.Customer;
 import com.halil.dvdrental.mapper.CustomerMapper;
 import com.halil.dvdrental.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class CustomerService {
                 .orElse(null);
     }
 
+    @PreAuthorize("hasRole('STAFF')")
     public CustomerDTO saveCustomerDTO(CustomerDTO dto) {
 
         System.out.println(">>> SERVICE SAVE BAŞLADI");
@@ -83,6 +85,8 @@ public class CustomerService {
 
         return CustomerMapper.toDTO(customer);
     }
+
+    @PreAuthorize("hasRole('STAFF')")
     public boolean deleteCustomer(Integer id) {
 
         long rentalCount =

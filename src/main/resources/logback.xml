@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <!-- Dosyaya yazan, boyut aşınca döngüye giren appender -->
+    <!-- Sistem logları: dvd-rental.log -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/dvd-rental.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -22,13 +22,53 @@
         </encoder>
     </appender>
 
-    <!-- Kendi paketin: DEBUG seviyesinde detaylı log -->
+    <!-- Film denetim logları: film.log -->
+    <appender name="FILM_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/film.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/film.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%msg</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Kiralama denetim logları: kiralama.log -->
+    <appender name="RENTAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/kiralama.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/kiralama.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%msg</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Kendi paketin: DEBUG seviyesinde detaylı log (mevcut, değişmedi) -->
     <logger name="com.halil.dvdrental" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>
 
-    <!-- Genel seviye: Spring/Hibernate gibi diğer her şey INFO -->
+    <!-- YENİ: Film denetim logger'ı -->
+    <logger name="FILM_AUDIT" level="INFO" additivity="false">
+        <appender-ref ref="FILM_FILE"/>
+    </logger>
+
+    <!-- YENİ: Kiralama denetim logger'ı -->
+    <logger name="RENTAL_AUDIT" level="INFO" additivity="false">
+        <appender-ref ref="RENTAL_FILE"/>
+    </logger>
+
+    <!-- Genel seviye: Spring/Hibernate gibi diğer her şey INFO (mevcut, değişmedi) -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>

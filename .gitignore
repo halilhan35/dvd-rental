@@ -38,3 +38,5 @@ build/
 logs/
 
 application.properties
+
+application.properties.bak

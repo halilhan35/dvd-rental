@@ -6,10 +6,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @Entity
 @Table(name = "language")
-public class Language {
+public class Language implements Serializable {
 
     @Id
     @Column(name = "language_id")

@@ -6,12 +6,66 @@
 
 <h:head>
     <title>Film Yönetimi</title>
+    <style>
+        /* Seçilen elemanların listesini flex yapıp satır sarmasını açıyoruz */
+        .ui-selectcheckboxmenu-multiple-container.ui-inputfield {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+            max-height: 140px !important;
+            overflow-y: auto !important;
+            list-style: none !important;
+            padding: 6px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Her bir aktör kutucuğunu satırın tam yarısı (%50) genişliğinde ayarlıyoruz */
+        .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            float: none !important;
+
+            /* gap: 6px olduğu için 2 kutu sığacak formül: */
+            width: calc(50% - 3px) !important;
+            box-sizing: border-box !important;
+
+            margin: 0 !important;
+            padding: 3px 8px !important;
+            border-radius: 4px;
+        }
+
+        /* İsim çok uzunsa kutuyu patlatmayıp üç nokta koysun */
+        .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token-label {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            font-size: 12.5px !important;
+        }
+
+        /* Çarpı (kaldır) ikonunu sağa sabitle */
+        .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token-icon {
+            margin-left: 4px !important;
+            flex-shrink: 0 !important;
+            cursor: pointer;
+        }
+    </style>
 </h:head>
 
 <h:body>
 
     <div class="card" style="padding: 20px;">
-        <h2>Film Yönetimi</h2>
+
+        <!-- BAŞLIK & GERİ DÖNÜŞ ALANI -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;">Film Yönetimi</h2>
+            <a href="/staff/home.xhtml"
+               style="text-decoration: none; padding: 8px 16px; border: 1px solid #cbd5e1;
+                      border-radius: 6px; color: #334155; font-size: 13px; font-weight: 600;">
+                <i class="pi pi-arrow-left" style="margin-right: 6px;"></i>Geri Dön
+            </a>
+        </div>
 
         <!-- ANA FORM -->
         <h:form id="mainForm">
@@ -20,13 +74,21 @@
                         showDetail="true"
                         closable="true"/>
 
+            <!-- Hem Silme hem Kiralama için ortak Onay Dialog'u -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                <p:commandButton value="Hayır" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Evet" type="button" styleClass="ui-confirmdialog-yes ui-button-primary"/>
+            </p:confirmDialog>
+
+            <!-- YENİ FİLM BUTONU (Sadece Staff) -->
             <p:commandButton value="Yeni Film"
                              icon="pi pi-plus"
                              action="#{filmBean.prepareNew}"
                              update=":dialogForm"
                              oncomplete="PF('filmDialogWidget').show()"
                              styleClass="ui-button-success"
-                             style="margin-bottom: 15px"/>
+                             style="margin-bottom: 15px"
+                             rendered="#{loggedInUserBean.staff}"/>
 
             <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
 
@@ -76,7 +138,6 @@
                     <h:outputText value="#{film.languageName}"/>
                 </p:column>
 
-
                 <p:column headerText="Yayın Yılı"
                           sortBy="#{film.releaseYear}">
                     <h:outputText value="#{film.releaseYear}"/>
@@ -92,10 +153,12 @@
                     <h:outputText value="#{film.length}"/>
                 </p:column>
 
+                <!-- İŞLEMLER SÜTUNU -->
                 <p:column headerText="İşlemler"
-                          style="width: 180px; text-align: center;">
+                          style="width: 220px; text-align: center;"
+                          rendered="#{loggedInUserBean.staff or loggedInUserBean.customer}">
 
-                    <!-- DÜZENLE -->
+                    <!-- DÜZENLE (Sadece Staff) -->
                     <p:commandButton icon="pi pi-pencil"
                                      value="Düzenle"
                                      action="#{filmBean.prepareEdit(film)}"
@@ -103,18 +166,38 @@
                                      update=":dialogForm"
                                      oncomplete="PF('filmDialogWidget').show()"
                                      styleClass="ui-button-warning"
-                                     style="margin-right: 5px"/>
+                                     style="margin-right: 5px"
+                                     rendered="#{loggedInUserBean.staff}"/>
 
-                    <!-- SİL -->
+                    <!-- SİL (Sadece Staff) -->
                     <p:commandButton icon="pi pi-trash"
                                      value="Sil"
                                      action="#{filmBean.delete}"
                                      update="filmTable mainMessages"
-                                     styleClass="ui-button-danger">
+                                     styleClass="ui-button-danger"
+                                     rendered="#{loggedInUserBean.staff}">
 
                         <f:setPropertyActionListener
                                 value="#{film}"
                                 target="#{filmBean.selectedFilmDTO}"/>
+
+                        <p:confirm header="Silme Onayı"
+                                   message="Bu filmi silmek istediğinizden emin misiniz?"
+                                   icon="pi pi-exclamation-triangle"/>
+
+                    </p:commandButton>
+
+                    <!-- KİRALA (Sadece Müşteri) -->
+                    <p:commandButton icon="pi pi-shopping-cart"
+                                     value="Kirala"
+                                     action="#{rentalBean.rent(film.filmId)}"
+                                     update=":mainForm:mainMessages"
+                                     styleClass="ui-button-info"
+                                     rendered="#{loggedInUserBean.customer}">
+
+                        <p:confirm header="Kiralama Onayı"
+                                   message="'#{film.title}' filmini kiralamak istiyor musunuz?"
+                                   icon="pi pi-info-circle"/>
 
                     </p:commandButton>
 
@@ -125,13 +208,14 @@
         </h:form>
 
 
-        <!-- DIALOG -->
+        <!-- DIALOG (Sadece Staff için modal render edilir) -->
         <p:dialog id="filmDialog"
                   widgetVar="filmDialogWidget"
                   header="Film Bilgileri"
                   modal="true"
                   responsive="true"
-                  width="550">
+                  width="550"
+                  rendered="#{loggedInUserBean.staff}">
 
             <!-- DIALOG FORM -->
             <h:form id="dialogForm">
@@ -142,108 +226,103 @@
                             showDetail="true"
                             closable="true"/>
 
-                <p:panelGrid columns="2"
-                             layout="grid"
-                             columnClasses="ui-g-12 ui-md-4, ui-g-12 ui-md-8"
-                             styleClass="ui-fluid ui-panelgrid-blank">
+                <div style="max-height: 60vh; overflow-y: auto; padding-right: 8px;">
+                    <p:panelGrid columns="2"
+                                 layout="grid"
+                                 columnClasses="ui-g-12 ui-md-4, ui-g-12 ui-md-8"
+                                 styleClass="ui-fluid ui-panelgrid-blank">
 
-                    <p:outputLabel for="title"
-                                   value="Film Adı:"/>
+                        <p:outputLabel for="title"
+                                       value="Film Adı:"/>
 
-                    <p:inputText id="title"
-                                 value="#{filmBean.selectedFilmDTO.title}"
-                                 required="true"
-                                 requiredMessage="Film adı zorunludur"/>
+                        <p:inputText id="title"
+                                     value="#{filmBean.selectedFilmDTO.title}"
+                                     required="true"
+                                     requiredMessage="Film adı zorunludur"/>
 
+                        <p:outputLabel for="description"
+                                       value="Açıklama:"/>
 
-                    <p:outputLabel for="description"
-                                   value="Açıklama:"/>
+                        <p:inputTextarea id="description"
+                                         value="#{filmBean.selectedFilmDTO.description}"
+                                         rows="3"/>
 
-                    <p:inputTextarea id="description"
-                                     value="#{filmBean.selectedFilmDTO.description}"
-                                     rows="3"/>
+                        <p:outputLabel for="releaseYear"
+                                       value="Yayın Yılı:"/>
 
+                        <p:inputText id="releaseYear"
+                                     value="#{filmBean.selectedFilmDTO.releaseYear}"/>
 
-                    <p:outputLabel for="releaseYear"
-                                   value="Yayın Yılı:"/>
+                        <p:outputLabel for="language" value="Dil:"/>
 
-                    <p:inputText id="releaseYear"
-                                 value="#{filmBean.selectedFilmDTO.releaseYear}"/>
+                        <p:selectOneMenu id="language"
+                                         value="#{filmBean.selectedFilmDTO.languageId}"
+                                         style="width: 100%;">
 
+                            <f:selectItem itemLabel="Dil seçiniz"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
 
-                    <p:outputLabel for="language" value="Dil:"/>
+                            <f:selectItems
+                                    value="#{filmBean.languageList}"
+                                    var="language"
+                                    itemLabel="#{language.name}"
+                                    itemValue="#{language.languageId}"/>
 
-                    <p:selectOneMenu id="language"
-                                     value="#{filmBean.selectedFilmDTO.languageId}"
-                                     style="width: 100%;">
+                        </p:selectOneMenu>
 
-                        <f:selectItem itemLabel="Dil seçiniz"
-                                      itemValue="#{null}"
-                                      noSelectionOption="true"/>
+                        <p:outputLabel for="rentalRate"
+                                       value="Kira Ücreti:"/>
 
-                        <f:selectItems
-                                value="#{filmBean.languageList}"
-                                var="language"
-                                itemLabel="#{language.name}"
-                                itemValue="#{language.languageId}"/>
+                        <p:inputText id="rentalRate"
+                                     value="#{filmBean.selectedFilmDTO.rentalRate}"/>
 
-                    </p:selectOneMenu>
+                        <p:outputLabel for="length"
+                                       value="Süre (dk):"/>
 
+                        <p:inputText id="length"
+                                     value="#{filmBean.selectedFilmDTO.length}"/>
 
-                    <p:outputLabel for="rentalRate"
-                                   value="Kira Ücreti:"/>
+                        <p:outputLabel for="actors"
+                                       value="Oyuncular:"/>
 
-                    <p:inputText id="rentalRate"
-                                 value="#{filmBean.selectedFilmDTO.rentalRate}"/>
+                        <p:selectCheckboxMenu id="actors"
+                                              value="#{filmBean.selectedFilmDTO.actorIds}"
+                                              multiple="true"
+                                              filter="true"
+                                              filterMatchMode="contains"
+                                              style="width: 100%;">
 
+                            <f:selectItems
+                                    value="#{filmBean.actorList}"
+                                    var="actor"
+                                    itemLabel="#{actor.firstName} #{actor.lastName}"
+                                    itemValue="#{actor.actorId}"/>
 
-                    <p:outputLabel for="length"
-                                   value="Süre (dk):"/>
+                        </p:selectCheckboxMenu>
 
-                    <p:inputText id="length"
-                                 value="#{filmBean.selectedFilmDTO.length}"/>
+                        <p:outputLabel for="categories"
+                                       value="Kategoriler:"/>
 
-                    <p:outputLabel for="actors"
-                                   value="Oyuncular:"/>
+                        <p:selectCheckboxMenu id="categories"
+                                              value="#{filmBean.selectedFilmDTO.categoryIds}"
+                                              multiple="true"
+                                              filter="true"
+                                              filterMatchMode="contains"
+                                              style="width: 100%;">
 
-                    <p:selectCheckboxMenu id="actors"
-                                          value="#{filmBean.selectedFilmDTO.actorIds}"
-                                          multiple="true"
-                                          filter="true"
-                                          filterMatchMode="contains"
-                                          style="width: 100%;">
+                            <f:selectItems
+                                    value="#{filmBean.categoryList}"
+                                    var="category"
+                                    itemLabel="#{category.name}"
+                                    itemValue="#{category.categoryId}"/>
 
-                        <f:selectItems
-                                value="#{filmBean.actorList}"
-                                var="actor"
-                                itemLabel="#{actor.firstName} #{actor.lastName}"
-                                itemValue="#{actor.actorId}"/>
+                        </p:selectCheckboxMenu>
 
-                    </p:selectCheckboxMenu>
+                    </p:panelGrid>
+                </div>
 
-
-                    <p:outputLabel for="categories"
-                                   value="Kategoriler:"/>
-
-                    <p:selectCheckboxMenu id="categories"
-                                          value="#{filmBean.selectedFilmDTO.categoryIds}"
-                                          multiple="true"
-                                          filter="true"
-                                          filterMatchMode="contains"
-                                          style="width: 100%;">
-
-                        <f:selectItems
-                                value="#{filmBean.categoryList}"
-                                var="category"
-                                itemLabel="#{category.name}"
-                                itemValue="#{category.categoryId}"/>
-
-                    </p:selectCheckboxMenu>
-
-                </p:panelGrid>
-
-
-                <!-- BUTONLAR DA FORMUN İÇİNDE -->
+                <!-- BUTONLAR -->
                 <div style="text-align: right; margin-top: 15px;">
 
                     <!-- KAYDET -->

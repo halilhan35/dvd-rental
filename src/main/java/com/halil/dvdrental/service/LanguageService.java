@@ -3,6 +3,7 @@ package com.halil.dvdrental.service;
 import com.halil.dvdrental.entity.Language;
 import com.halil.dvdrental.repository.LanguageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ public class LanguageService {
 
     private final LanguageRepository languageRepository;
 
+    @Cacheable("languages")
     public List<Language> getAllLanguages() {
         return languageRepository.findAll();
     }

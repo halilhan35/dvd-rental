@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Aktif Kiralamalar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 14px 28px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+        }
+
+        .badge-staff {
+            background-color: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .btn-logout {
+            background-color: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-logout:hover {
+            background-color: #dc2626;
+        }
+
+        .content-card {
+            max-width: 1100px;
+            margin: 0 auto 40px auto;
+            padding: 24px;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            color: #0f172a;
+            font-size: 22px;
+            font-weight: 700;
+        }
+    </style>
+</h:head>
+
+<h:body>
+
+    <!-- ÜST BAR (KULLANICI BİLGİSİ & ÇIKIŞ) -->
+    <div class="header-bar">
+        <div class="user-info">
+            <strong>Giriş Yapan:</strong>&#160;#{loggedInUserBean.username}
+            <h:panelGroup rendered="#{loggedInUserBean.staff}">
+                <span class="badge-staff">STAFF</span>
+            </h:panelGroup>
+        </div>
+
+        <form method="post" action="/logout" style="margin: 0;">
+            <button type="submit" class="btn-logout">Çıkış Yap</button>
+        </form>
+    </div>
+
+    <!-- ANA İÇERİK KARTI -->
+    <div class="content-card">
+
+        <!-- BAŞLIK & GERİ DÖNÜŞ BUTONU -->
+        <div class="card-header">
+            <h2>Aktif Kiralamalar</h2>
+
+            <p:button outcome="/staff/home.xhtml"
+                      value="Ana Sayfaya Dön"
+                      icon="pi pi-arrow-left"
+                      styleClass="ui-button-outlined ui-button-secondary ui-button-sm"/>
+        </div>
+
+        <h:form id="mainForm">
+
+            <p:messages id="mainMessages" showDetail="true" closable="true"/>
+
+            <!-- İade Onay Dialog'u -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="360">
+                <p:commandButton value="Vazgeç" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Evet, İade Al" type="button" styleClass="ui-confirmdialog-yes ui-button-success"/>
+            </p:confirmDialog>
+
+            <p:dataTable id="rentalsTable"
+                         value="#{rentalBean.activeRentals}"
+                         var="rental"
+                         paginator="true"
+                         rows="10"
+                         responsiveLayout="scroll"
+                         emptyMessage="Şu an aktif kiralama yok">
+
+                <p:column headerText="Film" style="font-weight: 600;">
+                    <h:outputText value="#{rental.filmTitle}"/>
+                </p:column>
+
+                <p:column headerText="Müşteri">
+                    <h:outputText value="#{rental.customerName}"/>
+                </p:column>
+
+                <p:column headerText="Kiralama Tarihi" style="width: 170px; text-align: center;">
+                    <h:outputText value="#{rental.rentalDateFormatted}"/>
+                </p:column>
+
+                <p:column headerText="İşlem" style="width: 140px; text-align: center;">
+                    <p:commandButton icon="pi pi-replay"
+                                     value="İade Al"
+                                     action="#{rentalBean.returnFilm(rental.rentalId)}"
+                                     update=":mainForm:mainMessages rentalsTable"
+                                     styleClass="ui-button-success ui-button-sm"
+                                     process="@this">
+                        <p:confirm header="İade Onayı"
+                                   message="&quot;#{rental.filmTitle}&quot; filmini iade almak istiyor musunuz?"
+                                   icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+                </p:column>
+
+            </p:dataTable>
+
+        </h:form>
+
+    </div>
+
+</h:body>
+</html>
