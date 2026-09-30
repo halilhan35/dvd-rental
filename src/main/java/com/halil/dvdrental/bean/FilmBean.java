@@ -89,6 +89,11 @@ public class FilmBean implements Serializable {
         log.info("Film saved successfully: id={}, title={}",
             savedDTO.getFilmId(), savedDTO.getTitle());
 
+        FacesContext.getCurrentInstance().addMessage(
+                null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Film kaydedildi.")
+        );
+
         lazyFilmModel = new FilmLazyDataModel(filmService);
         lazyFilmModel.setKeyword(searchKeyword);
 
@@ -104,6 +109,11 @@ public class FilmBean implements Serializable {
 
             filmList = filmService.getAllFilmDTOs();
             selectedFilmDTO = new FilmDTO();
+
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Film silindi.")
+            );
 
         } else {
 

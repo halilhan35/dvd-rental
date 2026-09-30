@@ -8,6 +8,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @Named
 @ViewScoped
 @RequiredArgsConstructor
+@Slf4j
 public class RentalBean implements Serializable {
 
     private final RentalService rentalService;
@@ -56,9 +58,24 @@ public class RentalBean implements Serializable {
         return activeRentals;
     }
 
+
     public void returnFilm(Integer rentalId) {
 
-        boolean success = rentalService.returnFilm(rentalId);
+        log.info("RentalBean.returnFilm çağrıldı: rentalId={}", rentalId);
+
+        boolean success;
+
+        try {
+            success = rentalService.returnFilm(rentalId);
+        } catch (Exception e) {
+            log.error("İade sırasında hata: rentalId={}", rentalId, e);
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata",
+                            "İade yapılamadı: " + e.getClass().getSimpleName())
+            );
+            return;
+        }
 
         FacesContext.getCurrentInstance().addMessage(
                 null,

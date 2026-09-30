@@ -284,9 +284,6 @@ public class FilmService {
 
         String changesText = changes.isEmpty() ? "-" : String.join(" | ", changes);
 
-        String header = String.format("%-19s | %-15s | %-16s | %-8s | %-25s | %-45s | %-10s",
-                "Tarih", "Kullanıcı", "İşlem", "Film ID", "Film Adı", "Değişiklikler", "Sonuç");
-
         String row = String.format("%-19s | %-15s | %-16s | %-8s | %-25s | %-45s | %-10s",
                 LocalDateTime.now().format(AUDIT_FORMAT),
                 SecurityUtils.getCurrentUserFullName(),
@@ -296,9 +293,8 @@ public class FilmService {
                 changesText,
                 success ? "Başarılı" : "Başarısız");
 
-        String separator = "-".repeat(header.length());
 
-        filmAuditLog.info("\n" + header + "\n" + separator + "\n" + row + "\n" + separator);
+        filmAuditLog.info( row );
     }
 
     @PreAuthorize("hasRole('STAFF')")

@@ -95,6 +95,11 @@
                   border-radius: 6px; color: #334155; font-size: 13px; font-weight: 600;">
                 <i class="pi pi-list" style="margin-right: 6px;"></i>Kiraladıklarım
             </a>
+            <a href="/change-password.xhtml"
+               style="text-decoration: none; padding: 8px 16px; border: 1px solid #cbd5e1;
+          border-radius: 6px; color: #334155; font-size: 13px; font-weight: 600;">
+                <i class="pi pi-key" style="margin-right: 6px;"></i>Şifre Değiştir
+            </a>
 
             <form method="post" action="/logout" style="margin: 0;">
                 <button type="submit" class="btn-logout">Çıkış Yap</button>
@@ -177,6 +182,7 @@
                 <p:column headerText="İşlem" style="width: 130px; text-align: center;">
                     <p:commandButton icon="pi pi-shopping-cart"
                                      value="Kirala"
+                                     title="Bu filmi kirala"
                                      action="#{rentalBean.rent(film.filmId)}"
                                      update=":mainForm:mainMessages filmTable"
                                      styleClass="ui-button-info">

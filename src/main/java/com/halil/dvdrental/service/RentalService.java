@@ -10,6 +10,7 @@ import com.halil.dvdrental.repository.FilmRepository;
 import com.halil.dvdrental.repository.InventoryRepository;
 import com.halil.dvdrental.repository.RentalRepository;
 import com.halil.dvdrental.security.SecurityUtils;
+import com.halil.dvdrental.audit.AuditLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -101,9 +102,6 @@ public class RentalService {
                                 String status, LocalDateTime rentalDate,
                                 LocalDateTime returnDate, boolean success) {
 
-        String header = String.format("%-19s | %-15s | %-8s | %-25s | %-14s | %-19s | %-19s | %-10s",
-                "Tarih", "Kullanıcı", "Film ID", "Film Adı", "Durum", "Kiralama Tarihi", "İade Tarihi", "Sonuç");
-
         String row = String.format("%-19s | %-15s | %-8s | %-25s | %-14s | %-19s | %-19s | %-10s",
                 LocalDateTime.now().format(AUDIT_FORMAT),
                 SecurityUtils.getCurrentUserFullName(),
@@ -114,9 +112,7 @@ public class RentalService {
                 returnDate != null ? returnDate.format(AUDIT_FORMAT) : "-",
                 success ? "Başarılı" : "Başarısız");
 
-        String separator = "-".repeat(header.length());
-
-        rentalAuditLog.info("\n" + header + "\n" + separator + "\n" + row + "\n" + separator);
+        rentalAuditLog.info(row);
     }
 
     private RentalDTO enrichToDTO(Rental rental) {

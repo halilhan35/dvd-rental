@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/customer/**").hasRole("CUSTOMER")
                 .requestMatchers("/customers.xhtml").hasRole("STAFF")
                 .requestMatchers("/filmler.xhtml").authenticated()
+                .requestMatchers("/change-password.xhtml").authenticated()
                 .anyRequest().permitAll()
         );
 
