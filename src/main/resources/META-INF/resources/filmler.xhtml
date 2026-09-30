@@ -6,50 +6,8 @@
 
 <h:head>
     <title>Film Yönetimi</title>
-    <style>
-        /* Seçilen elemanların listesini flex yapıp satır sarmasını açıyoruz */
-        .ui-selectcheckboxmenu-multiple-container.ui-inputfield {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: wrap !important;
-            gap: 6px !important;
-            max-height: 140px !important;
-            overflow-y: auto !important;
-            list-style: none !important;
-            padding: 6px !important;
-            box-sizing: border-box !important;
-        }
-
-        .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token {
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            float: none !important;
-
-            /* gap: 6px olduğu için 2 kutu sığacak formül: */
-            width: calc(50% - 3px) !important;
-            box-sizing: border-box !important;
-
-            margin: 0 !important;
-            padding: 3px 8px !important;
-            border-radius: 4px;
-        }
-
-        /* İsim çok uzunsa kutuyu patlatmayıp üç nokta koysun */
-        .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token-label {
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-            font-size: 12.5px !important;
-        }
-
-        /* Çarpı (kaldır) ikonunu sağa sabitle */
-        .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token-icon {
-            margin-left: 4px !important;
-            flex-shrink: 0 !important;
-            cursor: pointer;
-        }
-    </style>
+    <h:outputStylesheet library="css" name="common.css"/>
+    <h:outputStylesheet library="css" name="film.css"/>
 </h:head>
 
 <h:body>
